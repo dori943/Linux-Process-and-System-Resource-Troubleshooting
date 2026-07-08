@@ -26,8 +26,8 @@ info()   { echo -e "${CYAN}[INFO]${RESET}  $*"; }
 header() { echo -e "\n${BOLD}${CYAN}==== $* ====${RESET}\n"; }
 
 TARGET="agent-leak-app"
-AGENT_LOG_DIR="/home/claude/agent_home/logs"
-EVIDENCE_BASE="/home/claude/agent_home/evidence"
+AGENT_LOG_DIR="/home/doheekim/agent_home/logs"
+EVIDENCE_BASE="/home/doheekim/agent_home/evidence"
 SCENARIO=""
 COLLECT_ALL=false
 

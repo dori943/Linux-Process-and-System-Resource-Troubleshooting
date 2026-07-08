@@ -1,0 +1,7 @@
+=== OOM 관련 핵심 로그 ===
+2026-07-08 16:53:06,613 [INFO] [MemoryWorker] Current Heap: 25MB
+2026-07-08 16:53:09,687 [INFO] [MemoryWorker] Current Heap: 50MB
+2026-07-08 16:53:12,754 [INFO] [MemoryWorker] Current Heap: 75MB
+2026-07-08 16:53:15,817 [INFO] [MemoryWorker] Current Heap: 100MB
+2026-07-08 16:53:15,817 [CRITICAL] [MemoryGuard] Memory limit exceeded (100MB >= 80MB) / (Recommend Over 256MB)
+2026-07-08 16:53:15,817 [CRITICAL] [MemoryGuard] Self-terminating process 869 to prevent system instability.

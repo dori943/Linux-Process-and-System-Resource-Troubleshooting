@@ -19,7 +19,7 @@ INTERVAL=5
 OUTPUT_FILE=""
 NO_COLOR=false
 TARGET_NAME="agent-leak-app"
-AGENT_LOG_DIR="/home/claude/agent_home/logs"
+AGENT_LOG_DIR="/home/doheekim/agent_home/logs"
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 CYAN='\033[0;36m'; BOLD='\033[1m'; MAGENTA='\033[0;35m'; RESET='\033[0m'

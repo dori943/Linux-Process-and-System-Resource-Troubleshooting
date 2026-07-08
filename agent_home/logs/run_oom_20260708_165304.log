@@ -1,0 +1,35 @@
+>>> Starting Agent Boot Sequence...
+[1/6] Checking User Account               [OK]
+   ... Running as service user 'doheekim' (uid=1000)
+[2/6] Verifying Environment Variables     [OK]
+   ... All required Envs correct
+[3/6] Checking Required Files             [OK]
+   ... Verified 'secret.key' with correct key string.
+[4/6] Checking Port Availability          [OK]
+   ... Port 15034 is available.
+[5/6] Verifying Log Permission            [OK]
+   ... Log directory is writable: /home/doheekim/agent_home/logs
+[6/6] Verifying Mission Environment       [OK]
+   ... MEMORY_LIMIT=80MB, CPU_MAX_OCCUPY=50%, MULTI_THREAD_ENABLE=False
+------------------------------------------------------------
+All Boot Checks Passed!
+Agent READY
+2026-07-08 16:53:04,548 [INFO] [SafetyGuard] Process priority lowered (nice=10).
+2026-07-08 16:53:04,548 [INFO] Agent listening at port 15034
+
+==================================================
+ [ Agent Initiate ] Resource Check 
+==================================================
+ [ MEMORY ] Limit: 80MB 		[ WARNING: Recommend Over 256MB ]
+ [ CPU    ] Limit: 50%  		[ OK ]
+ [ THREAD ] Concurrency: False 		[ OK ]
+--------------------------------------------------
+ >>> SYSTEM STATUS: STABLE. STARTING WORKLOAD MONITORING...
+==================================================
+
+2026-07-08 16:53:06,613 [INFO] [MemoryWorker] Current Heap: 25MB
+2026-07-08 16:53:09,687 [INFO] [MemoryWorker] Current Heap: 50MB
+2026-07-08 16:53:12,754 [INFO] [MemoryWorker] Current Heap: 75MB
+2026-07-08 16:53:15,817 [INFO] [MemoryWorker] Current Heap: 100MB
+2026-07-08 16:53:15,817 [CRITICAL] [MemoryGuard] Memory limit exceeded (100MB >= 80MB) / (Recommend Over 256MB)
+2026-07-08 16:53:15,817 [CRITICAL] [MemoryGuard] Self-terminating process 869 to prevent system instability.

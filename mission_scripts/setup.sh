@@ -19,7 +19,7 @@ header()  { echo -e "\n${BOLD}${CYAN}==== $* ====${RESET}\n"; }
 MEMORY_LIMIT_VAL=100
 CPU_MAX_OCCUPY_VAL=50
 MULTI_THREAD_VAL=false
-AGENT_USER="claude"
+AGENT_USER="doheekim"
 BINARY_NAME="agent-leak-app"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BINARY_PATH="$(cd "$SCRIPT_DIR/.." && pwd)/$BINARY_NAME"

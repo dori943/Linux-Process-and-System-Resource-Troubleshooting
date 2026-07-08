@@ -21,7 +21,7 @@ error()  { echo -e "${RED}[ERROR]${RESET} $*" >&2; }
 header() { echo -e "\n${BOLD}${CYAN}==== $* ====${RESET}\n"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AGENT_USER="claude"
+AGENT_USER="doheekim"
 AGENT_HOME_DIR="/home/$AGENT_USER/agent_home"
 BINARY_PATH="$AGENT_HOME_DIR/agent-leak-app"
 ENV_FILE="$AGENT_HOME_DIR/agent.env"

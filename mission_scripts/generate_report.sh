@@ -15,9 +15,9 @@ set -euo pipefail
 CYAN='\033[0;36m'; BOLD='\033[1m'; GREEN='\033[0;32m'; RESET='\033[0m'
 
 SCENARIO=""
-AGENT_LOG_DIR="/home/claude/agent_home/logs"
-EVIDENCE_BASE="/home/claude/agent_home/evidence"
-OUTPUT_DIR="/home/claude/agent_home/reports"
+AGENT_LOG_DIR="/home/doheekim/agent_home/logs"
+EVIDENCE_BASE="/home/doheekim/agent_home/evidence"
+OUTPUT_DIR="/home/doheekim/agent_home/reports"
 
 while [[ $# -gt 0 ]]; do
     case $1 in

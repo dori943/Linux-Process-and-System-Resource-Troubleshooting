@@ -24,7 +24,7 @@ warn()   { echo -e "${YELLOW}  ⚠ $*${RESET}"; }
 step()   { echo -e "\n${BOLD}[STEP $1]${RESET} $2"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AGENT_HOME="/home/claude/agent_home"
+AGENT_HOME="/home/doheekim/agent_home"
 AGENT_LOG_DIR="$AGENT_HOME/logs"
 BINARY_PATH="$AGENT_HOME/agent-leak-app"
 ENV_FILE="$AGENT_HOME/agent.env"
@@ -54,7 +54,7 @@ source "$ENV_FILE"
 if [[ ! -f "$BINARY_PATH" ]]; then
     warn "바이너리 링크 없음: $BINARY_PATH"
     # x86 바이너리 자동 탐색
-    X86_BIN=$(find /home/claude -name "agent-leak-app*x86*" -o -name "agent-leak-app" 2>/dev/null | head -1 || echo "")
+    X86_BIN=$(find /home/doheekim -name "agent-leak-app*x86*" -o -name "agent-leak-app" 2>/dev/null | head -1 || echo "")
     if [[ -n "$X86_BIN" ]]; then
         ln -sf "$X86_BIN" "$BINARY_PATH"
         ok "바이너리 링크 생성: $BINARY_PATH → $X86_BIN"
