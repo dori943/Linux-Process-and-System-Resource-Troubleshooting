@@ -1,0 +1,14 @@
+=== oom 관련 핵심 로그 ===
+2026-10-21 20:33:51,763 [INFO] [MemoryWorker] Current Heap: 25MB
+2026-10-21 20:33:54,800 [INFO] [MemoryWorker] Current Heap: 50MB
+2026-10-21 20:33:57,835 [INFO] [MemoryWorker] Current Heap: 75MB
+2026-10-21 20:34:00,876 [INFO] [MemoryWorker] Current Heap: 100MB
+2026-10-21 20:34:00,876 [CRITICAL] [MemoryGuard] Memory limit exceeded (100MB >= 80MB) / (Recommend Over 256MB)
+2026-10-21 20:34:00,876 [CRITICAL] [MemoryGuard] Self-terminating process 60 to prevent system instability.
+
+=== 마지막 5줄 (로그 멈춤 시점 확인용) ===
+2026-10-21 20:33:54,800 [INFO] [MemoryWorker] Current Heap: 50MB
+2026-10-21 20:33:57,835 [INFO] [MemoryWorker] Current Heap: 75MB
+2026-10-21 20:34:00,876 [INFO] [MemoryWorker] Current Heap: 100MB
+2026-10-21 20:34:00,876 [CRITICAL] [MemoryGuard] Memory limit exceeded (100MB >= 80MB) / (Recommend Over 256MB)
+2026-10-21 20:34:00,876 [CRITICAL] [MemoryGuard] Self-terminating process 60 to prevent system instability.

@@ -1,0 +1,17 @@
+=== /proc/2172/status (발췌) ===
+Name:	agent-leak-app
+State:	S (sleeping)
+Pid:	2172
+PPid:	2171
+VmSize:	  170544 kB
+VmHWM:	   18016 kB
+VmRSS:	   18016 kB
+Threads:	3
+voluntary_ctxt_switches:	285
+nonvoluntary_ctxt_switches:	1
+
+=== /proc/2172/wchan ===
+futex_wait_queue
+
+=== /proc/2172/oom_score ===
+667

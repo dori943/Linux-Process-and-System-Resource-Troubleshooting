@@ -8,7 +8,7 @@
 3. [OOM — 메모리 누수 장애](#3-oom--메모리-누수-장애)
 4. [CPU Spike — CPU 과점유 장애](#4-cpu-spike--cpu-과점유-장애)
 5. [Deadlock — 교착상태 장애](#5-deadlock--교착상태-장애)
-6. [트러블슈팅: CPU 80% 설정 시 50%에서 종료된 문제](#6-트러블슈팅-cpu-80-설정-시-50에서-종료된-문제)
+6. [트러블슈팅: 미션 중 직접 겪은 두 가지 문제](#6-트러블슈팅-미션-중-직접-겪은-두-가지-문제)
 7. [심화 분석](#7-심화-분석)
 
 ---
@@ -27,40 +27,52 @@ setup.sh → run_agent.sh → monitor.sh → collect_evidence.sh → generate_re
 
 | 파일 | 역할 |
 |------|------|
-| `setup.sh` | AGENT_HOME 디렉터리, secret.key, 환경변수 파일 자동 생성 |
-| `run_agent.sh` | 시나리오별 환경변수 설정 후 앱 실행 (포그라운드/백그라운드 선택) |
-| `monitor.sh` | CPU/메모리/스레드를 주기적으로 측정 → 터미널 출력 + CSV 저장 |
-| `collect_evidence.sh` | ps, /proc, 스레드 wchan, 핵심 로그를 증거 폴더에 자동 수집 |
-| `generate_report.sh` | 수집된 증거로 GitHub Issue 형식 `.md` 리포트 자동 생성 |
-| `run_all_scenarios.sh` | 위 4단계를 시나리오별로 순차 자동 실행 |
+| `common.sh` | 공통 경로(`$AGENT_HOME`, 기본 `~/agent_home`)와 함수: 워커 PID 찾기, 순간 CPU 측정, 앱 실행/종료 |
+| `setup.sh` | AGENT_HOME 디렉터리, secret.key, 환경변수 파일 생성. 바이너리는 아키텍처에 맞춰 자동 탐색 |
+| `run_agent.sh` | 시나리오별 환경변수 설정 후 앱 실행 (수동 실험용, 포그라운드/백그라운드) |
+| `monitor.sh` | 워커 프로세스의 순간 CPU / RSS / 스레드 수를 주기적으로 측정 → 대시보드 + CSV |
+| `collect_evidence.sh` | ps, pstree, /proc, 스레드 wchan, top -H, 핵심 로그, 터미널 출력을 증거 폴더에 수집 |
+| `generate_report.sh` | Before/After 증거 폴더의 실측값(run_meta.txt)으로 GitHub Issue 형식 `.md` 생성 |
+| `run_all_scenarios.sh` | 시나리오마다 Before → After 두 번 실행하며 위 과정을 자동화 |
 
-### monitor.sh 데이터 수집 방식
+### monitor 데이터 수집 방식 — 두 가지 함정
+
+**함정 1: 프로세스가 2개다.** `agent-leak-app` 은 PyInstaller 로 포장된 파이썬 앱이라 실행하면
+런처(부모)가 먼저 뜨고, 런처가 실제 파이썬 워커(자식)를 띄운다. 메모리와 스레드를 쓰는 것은 자식이다.
+
+```
+agent-leak-app(2517)---agent-leak-app(2518)-+-{agent-leak-app}(2593)   ← pstree -p
+   런처 (RSS 2MB, 스레드 1)   워커 (RSS 증가, 스레드 3)
+```
+
+`pgrep -f agent-leak-app | head -1` 은 PID 가 작은 런처를 잡기 때문에 RSS 가 2MB 로 고정된 것처럼 보인다.
+`common.sh` 의 `find_app_pid` 는 "부모 이름도 agent-leak-app 인 프로세스" = 워커를 고른다.
+
+**함정 2: `ps` 의 %CPU 는 누적 평균이다.** 프로세스가 생긴 이후 전체 시간 대비 CPU 시간 비율이라
+시작 직후 값이 점점 낮아지기만 한다. 순간값은 `top` 을 1초 간격으로 두 번 찍어 두 번째 값을 쓴다.
 
 ```bash
-# 핵심 명령어: ps로 PID별 CPU/메모리/스레드 수 측정
-ps -p $PID -o pid=,pcpu=,rss=,vsz=,nlwp=,stat= --no-headers
+# 워커 PID 의 누적평균 CPU / RSS(KB) / VSZ(KB) / 스레드 수 / 상태
+ps -p $PID -o pcpu=,rss=,vsz=,nlwp=,stat=
 
-# 옵션 의미
-# pcpu  : 해당 프로세스의 CPU 사용률 (%)
-# rss   : Resident Set Size — 실제 물리 메모리 사용량 (KB)
-# vsz   : Virtual Memory Size — 가상 메모리 크기 (KB)
-# nlwp  : 스레드(경량 프로세스) 수
-# stat  : 프로세스 상태 (R=실행, S=슬립, D=대기, Z=좀비)
+# 순간 CPU: -b 배치 모드, -n 2 두 번, -d 1 1초 간격 → 두 번째 샘플이 순간값
+top -b -n 2 -d 1 -p $PID | awk -v p=$PID '$1==p {v=$9} END {print v}'
 
-# 결과를 CSV로 저장하여 리포트 증거로 활용
-echo "$NOW,$PID,$CPU,$RSS_MB,$VSZ_MB,$THREADS,$STATUS" >> monitor.csv
+# CSV 한 줄: 시각, PID, 순간CPU, 누적평균CPU, RSS_MB, VSZ_MB, 스레드, STAT, 상태, 비고
+echo "$NOW,$PID,$CPU_NOW,$CPU_AVG,$RSS_MB,$VSZ_MB,$THREADS,$STAT,RUNNING," >> monitor.csv
 ```
+
+**로그 캡처:** 앱의 종료 배너(`>>> [SYSTEM] ... <<<`)는 `print()` 로 출력되는데 `nohup ... > file` 로
+리다이렉션하면 블록 버퍼링 때문에 시그널로 죽는 순간 파일에 남지 않는다. 그래서 `script -q -c` 로
+가상 터미널 아래에서 실행해 배너와 `EXIT_CODE=N` (137 = SIGKILL, 143 = SIGTERM) 을 함께 기록한다.
 
 ### 산출물 위치
 
 ```
-~/agent_home/
-├── logs/          # 실행 로그, 관제 CSV
-├── evidence/      # 시나리오별 증거 파일
-└── reports/       # GitHub Issue 제출용 마크다운 리포트
-    ├── issue_oom_*.md
-    ├── issue_cpu_*.md
-    └── issue_deadlock_*.md
+$AGENT_HOME (기본 ~/agent_home)
+├── logs/          # run_<시나리오>_<before|after>_*.log (터미널 출력), monitor_*.csv, agent_app.log
+├── evidence/      # <시나리오>_<before|after>_<타임스탬프>/ : ps, pstree, 스레드, 로그, run_meta.txt
+└── reports/       # issue_oom_*.md / issue_cpu_*.md / issue_deadlock_*.md  (GitHub Issue 제출용)
 ```
 
 ---
@@ -68,18 +80,25 @@ echo "$NOW,$PID,$CPU,$RSS_MB,$VSZ_MB,$THREADS,$STATUS" >> monitor.csv
 ## 2. 실행 방법
 
 ```bash
-# 환경 초기화 (최초 1회)
+# 일반 사용자로 (root 는 앱이 거부)
+cd mission_scripts
 chmod +x *.sh
-bash setup.sh --binary ./agent-leak-app-x86
+bash setup.sh                       # 리포지토리의 agent-app-leak/agent-leak-app-x86 을 자동으로 찾음
+# bash setup.sh --binary /path/to/agent-leak-app-arm64   # 직접 지정도 가능
 
-# 시나리오별 실행 (리포트까지 자동 생성)
+# 시나리오별 Before → After 자동 실행 + 증거 수집 + 리포트 생성
 bash run_all_scenarios.sh oom
 bash run_all_scenarios.sh cpu
 bash run_all_scenarios.sh deadlock
-bash run_all_scenarios.sh all   # 3개 한번에
+bash run_all_scenarios.sh all       # 3개 한번에 (약 6분)
+
+# 수동 실험: 터미널 1 에서 앱, 터미널 2 에서 관제
+bash run_agent.sh --scenario oom --memory 300
+bash monitor.sh
 ```
 
-> WSL / Linux 환경에서 실행. macOS는 Linux ELF 바이너리 미지원.
+> WSL / Linux 환경에서 실행. macOS 는 Linux ELF 바이너리 미지원.
+> `script` 명령(util-linux)이 없으면 종료 배너가 로그에 안 남을 수 있다.
 
 ---
 
@@ -110,13 +129,24 @@ bash run_all_scenarios.sh all   # 3개 한번에
 
 ### ps / monitor 관제 데이터
 
-```bash
-# 측정 도구: ps 명령어
-ps -p $PID -o pid,pcpu,rss,nlwp,stat --no-headers
+워커 PID 를 기준으로 재면 RSS 는 앱 로그의 `Current Heap` 과 같은 기울기(+25MB / 3초)로 오른다.
+(기본 RSS 약 18MB + 힙)
 
-# 측정 결과 (RSS = 실제 물리 메모리)
-# 앱 내부 힙은 증가하지만 RSS는 낮게 잡히는 특성 있음 (시뮬레이션 방식)
-# 핵심 증거는 앱 로그의 [MemoryWorker] Current Heap 수치
+```
+| 시각     | PID | CPU 순간 | CPU 누적평균 | RSS (MB) | 스레드 | STAT | 상태    |
+| 18:11:18 | 275 | 0.0      | 2.3          | 42.6     | 1      | SN+  | RUNNING |
+| 18:11:22 | 275 | 0.0      | 1.2          | 67.6     | 1      | SN+  | RUNNING |
+| 18:11:25 | 275 | 0.0      | 0.9          | 92.6     | 1      | SN+  | RUNNING |
+| 18:11:28 |     | 0        | 0            | 0        | 0      | -    | EXITED  |
+```
+
+종료 직후 터미널 출력과 종료 코드:
+
+```
+[CRITICAL] [MemoryGuard] Self-terminating process 275 to prevent system instability.
+>>> [SYSTEM] SELF-TERMINATED (Memory Limit Exceeded) <<<
+Killed
+EXIT_CODE=137        ← 128 + 9 (SIGKILL)
 ```
 
 ### Before & After 비교 (MEMORY_LIMIT 조정)
@@ -190,22 +220,34 @@ fi
 Terminated
 ```
 
+### 종료 직후 터미널 출력
+
+```
+[CRITICAL] [CpuWorker] CPU Threshold Violated! (55.94%).
+>>> [SYSTEM] WATCHDOG: INITIATING EMERGENCY ABORT (SIGTERM) <<<
+Terminated
+EXIT_CODE=143        ← 128 + 15 (SIGTERM)
+```
+
 ### CPU 사용률 확인 도구
 
 ```bash
-# 1. ps — 특정 프로세스 CPU 확인
+# 1. ps — 누적 평균 (프로세스 생성 이후 전체 기간). 급상승 구간 관찰엔 부적합
 ps -p $PID -o pid,pcpu,comm
-# pcpu: 해당 프로세스의 CPU 점유율(%)
 
-# 2. top — 실시간 전체 시스템 모니터링
-top -b -n 1 -p $PID
-# -b: 배치 모드 (스크립트에서 사용 가능)
-# -n 1: 1회만 출력
-# -p $PID: 특정 PID만 표시
+# 2. top — 순간값. 첫 화면은 누적값이므로 -n 2 로 두 번 찍고 두 번째를 본다
+top -b -n 2 -d 1 -p $PID
 
-# 3. ps aux — 전체 프로세스 CPU 내림차순 정렬
+# 3. ps aux — 전체 프로세스 CPU 내림차순
 ps aux --sort=-%cpu | head -10
+
+# 4. uptime — load average (런큐 길이). nproc 보다 크면 CPU 대기 발생 중
+uptime; nproc
 ```
+
+**주의:** 이 앱의 `Current Load` 는 실제 연산 부하가 아니라 앱이 내부적으로 시뮬레이션하는 값이다.
+`top` 으로 재면 워커의 실제 CPU 는 0~5% 수준이다. Watchdog 은 앱 내부 값을 기준으로 동작하므로
+리포트에는 앱 로그(Current Load)와 OS 관제값(top)을 나란히 제시해 교차 검증했다고 쓰는 것이 정확하다.
 
 ### Before & After 비교 (CPU_MAX_OCCUPY 조정)
 
@@ -287,11 +329,11 @@ Thread-2: [B 보유] ←────────── [A 필요] ──┘
 ```bash
 # 1단계: PID 존재 여부 확인 (살아있는지 체크)
 ps -ef | grep agent-leak-app
-# → PID가 있으면 프로세스는 살아있음
+# → PID가 있으면 프로세스는 살아있음 (런처+워커 2개가 보임)
 
 # 2단계: CPU/메모리 변화 여부 확인 (움직이는지 체크)
-ps -p $PID -o pid,pcpu,rss --no-headers
-# → CPU ≈ 0%, RSS 변화 없음 = 아무 작업 안 함
+top -b -n 2 -d 1 -p $PID | tail -1 ; ps -p $PID -o rss=
+# → 순간 CPU 0% (무한루프 아님), RSS 변화 없음 = 아무 작업 안 함
 
 # 3단계: 스레드 상태 확인 (어디서 멈췄는지 체크)
 ps -L -p $PID -o lwp,stat,wchan:30,comm
@@ -314,7 +356,7 @@ LWP   STAT  WCHAN                          COMMAND
 571   Sl    futex_wait_queue_me            agent-leak-app   ← Worker-Thread-2 (BLOCKED)
 ```
 
-`futex_wait_queue_me` = 뮤텍스/락 대기 중임을 OS 레벨에서 확인
+`futex_wait_queue_me` (커널 버전에 따라 `futex_do_wait`) = 뮤텍스/락 대기 중임을 OS 레벨에서 확인
 
 ### Before & After 비교 (MULTI_THREAD_ENABLE 조정)
 
@@ -323,7 +365,7 @@ LWP   STAT  WCHAN                          COMMAND
 | 실행 결과 | 프로세스 무응답 (BLOCKED) | 정상 작업 완료 |
 | 로그 상태 | 특정 시점에서 완전히 멈춤 | Thread-A,B,C 순차 100% 완료 |
 | CPU | ≈ 0% (대기) | 정상 사용 후 복귀 |
-| PID | 계속 존재 (좀비처럼) | 작업 완료 후 정상 진행 |
+| PID | 계속 존재 (상태 S, 세 스레드 모두 futex 대기) | 작업 완료 후 정상 진행 |
 
 **After 실행 결과 (MULTI_THREAD=false):**
 ```
@@ -361,59 +403,61 @@ with global_lock:
 
 ---
 
-## 6. 트러블슈팅: CPU 80% 설정 시 50%에서 종료된 문제
+## 6. 트러블슈팅: 미션 중 직접 겪은 두 가지 문제
 
-### 현상
+### 6-1. CPU 80% 로 설정했는데 50% 에서 종료된 문제
+
+**현상**
 
 ```
 설정: CPU_MAX_OCCUPY=80
-실제 종료 시점: CPU 52.68%
-
-[CRITICAL] [CpuWorker] CPU Threshold Violated! (52.68%)
+실제 종료 시점: Current Load 50.66% ~ 55.94%
+[CRITICAL] [CpuWorker] CPU Threshold Violated! (55.94%).
 ```
 
-### 원인 분석 과정
+**분석 과정**
 
-**1단계: 환경변수 정상 전달 여부 확인**
+1. 환경변수 전달 확인 → 부팅 로그 `CPU_MAX_OCCUPY=80%` 로 정상 전달됨.
+2. 부팅 로그의 Resource Check 를 다시 읽음:
+   ```
+   [ CPU    ] Limit: 80%   [ WARNING: Recommend Under 50% ]
+   ```
+3. 값을 바꿔가며 재실행 (10, 30, 50, 60, 80):
+   - 50 이하 → `Peak reached (N%). Starting cooldown...` 후 5% 로 내려갔다 다시 상승, 종료 없음
+   - 50 초과 → 설정값과 무관하게 Load 가 약 50% 를 넘는 순간 SIGTERM
+
+**결론**
+
+앱은 `CPU_MAX_OCCUPY` 가 권장 상한(50%)을 넘으면 "위험 구성" 으로 분류하고, 그때는 설정값이 아니라
+자체 보호 임계치(약 50%)에서 Watchdog 을 발동한다. 설정값은 쿨다운 목표치로만 쓰인다.
+즉 "80 인데 50 에서 죽었다" 는 버그가 아니라, 권장치를 넘는 설정에 대한 앱의 안전 정책이다.
+해결(After)은 임계치를 올리는 것이 아니라 권장 범위 안(30)으로 낮추는 것이었다.
+
+### 6-2. monitor 가 RSS 2MB, 스레드 1개만 찍던 문제
+
+**현상**
+
+앱 로그는 `Current Heap: 100MB` 인데 monitor CSV 의 RSS 는 2.0MB 로 고정, Deadlock 인데 스레드가 1개.
+
+**원인**
+
+`pgrep -f agent-leak-app | head -1` 이 PID 가 가장 작은 프로세스 = PyInstaller 런처(부모)를 잡았다.
+`ps -eo pid,ppid,rss,nlwp,cmd | grep agent-leak-app` 으로 전부 출력하니 두 개가 보였다.
+
 ```
-[6/6] Verifying Mission Environment [OK]
-... MEMORY_LIMIT=512MB, CPU_MAX_OCCUPY=80%, MULTI_THREAD_ENABLE=False
-```
-→ 80%로 정상 전달됨. 앱 설정 문제 아님.
-
-**2단계: 앱 내부 하드코딩 확인**
-
-바이너리에서 추출한 float 상수:
-```
-발견된 상수: 0.01, 0.05, 0.1, 5.0, 10.0, 100.0
-50.0 등장 횟수: 0회
-80.0 등장 횟수: 0회
-```
-→ 앱 내부에 50% 하드코딩 없음.
-
-**3단계: CPU 측정 방식 확인**
-
-앱은 `psutil.cpu_percent()` 로 **시스템 전체 CPU**를 측정한다.
-WSL(Windows Subsystem for Linux) 환경에서는 Windows 프로세스의 CPU 사용량까지
-합산되어 측정값이 실제보다 높게 나온다.
-
-```
-Windows 백그라운드 프로세스: ~30%
-앱 CpuWorker 부하:           +22%
-─────────────────────────────────
-psutil 측정값 (전체):         52.68% → Threshold Violated (설정: 80%)
+  PID  PPID   RSS NLWP CMD
+  336     1  2216    1 ./agent-leak-app     ← 런처
+  339   336 94892    1 ./agent-leak-app     ← 워커 (힙이 여기 쌓임)
 ```
 
-### 결론
+**해결**
 
-| 항목 | 결과 |
-|------|------|
-| 환경변수 전달 | 정상 (80% 확인) |
-| 앱 내부 50% 하드코딩 | 없음 |
-| 실제 원인 | WSL 환경에서 psutil이 Windows 포함 전체 CPU 측정 |
-| 앱 버그 여부 | 아님 — WSL 환경 특성 |
+`common.sh` 의 `find_app_pid` 가 "부모의 이름도 agent-leak-app 인 프로세스" 를 고르도록 수정.
+`pstree -p` 를 증거에 포함해 런처 → 워커 구조를 리포트에서 보여준다.
 
-실제 Linux 서버나 Docker 환경에서는 앱 부하만 측정되므로 80%에 훨씬 가깝게 올라가다 종료된다.
+**교훈**
+
+관제 수치가 앱 로그와 안 맞으면 도구를 의심하기 전에 "내가 측정하는 PID 가 맞는지" 부터 확인한다.
 
 ---
 
@@ -452,6 +496,6 @@ Deadlock은 이미 멈춰있어 추가 피해를 주지 않으므로 후순위�
 1. **모니터링을 먼저 붙이고 앱 실행**: 앱 실행 전 터미널 분할로 monitor.sh를 먼저 켜고 앱 시작
 2. **증거 실시간 수집**: 장애 발생 즉시 `ps`, `top`, `스레드 상태`를 자동 스냅샷
 3. **Before/After를 동일 조건에서 비교**: 환경변수 하나만 바꾸고 나머지는 동일하게 유지
-4. **WSL 환경 특성 먼저 파악**: CPU 측정이 전체 시스템 기준임을 인지하고 테스트
+4. **측정 대상 PID 부터 검증**: 앱 로그 수치와 관제 수치가 다르면 `ps -eo pid,ppid,rss,cmd` 로 프로세스가 몇 개인지 먼저 본다
 
 ---

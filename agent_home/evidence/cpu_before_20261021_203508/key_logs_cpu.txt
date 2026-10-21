@@ -1,0 +1,22 @@
+=== cpu 관련 핵심 로그 ===
+2026-10-21 20:35:11,527 [INFO] [CpuWorker] Started. Maximum CPU Limit: 80%
+2026-10-21 20:35:11,527 [INFO] [CpuWorker] Current Load: 5.00%
+2026-10-21 20:35:14,643 [INFO] [CpuWorker] Current Load: 14.41%
+2026-10-21 20:35:17,759 [INFO] [CpuWorker] Current Load: 20.90%
+2026-10-21 20:35:20,875 [INFO] [CpuWorker] Current Load: 21.54%
+2026-10-21 20:35:23,991 [INFO] [CpuWorker] Current Load: 25.29%
+2026-10-21 20:35:27,107 [INFO] [CpuWorker] Current Load: 26.32%
+2026-10-21 20:35:30,223 [INFO] [CpuWorker] Current Load: 26.43%
+2026-10-21 20:35:33,339 [INFO] [CpuWorker] Current Load: 29.31%
+2026-10-21 20:35:36,456 [INFO] [CpuWorker] Current Load: 32.93%
+2026-10-21 20:35:39,572 [INFO] [CpuWorker] Current Load: 40.00%
+2026-10-21 20:35:42,688 [INFO] [CpuWorker] Current Load: 49.18%
+2026-10-21 20:35:45,804 [INFO] [CpuWorker] Current Load: 50.25%
+2026-10-21 20:35:45,905 [CRITICAL] [CpuWorker] CPU Threshold Violated! (50.25%).
+
+=== 마지막 5줄 (로그 멈춤 시점 확인용) ===
+2026-10-21 20:35:36,456 [INFO] [CpuWorker] Current Load: 32.93%
+2026-10-21 20:35:39,572 [INFO] [CpuWorker] Current Load: 40.00%
+2026-10-21 20:35:42,688 [INFO] [CpuWorker] Current Load: 49.18%
+2026-10-21 20:35:45,804 [INFO] [CpuWorker] Current Load: 50.25%
+2026-10-21 20:35:45,905 [CRITICAL] [CpuWorker] CPU Threshold Violated! (50.25%).

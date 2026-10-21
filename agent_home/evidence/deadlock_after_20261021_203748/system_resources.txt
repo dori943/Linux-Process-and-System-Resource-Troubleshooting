@@ -1,0 +1,29 @@
+=== 시스템 메모리 (free -h) ===
+               total        used        free      shared  buff/cache   available
+Mem:           7.8Gi       815Mi       6.8Gi       3.0Mi       279Mi       7.0Gi
+Swap:          2.0Gi          0B       2.0Gi
+
+=== 시스템 부하 (uptime) / 코어 수 ===
+ 20:38:32 up 4 min,  0 user,  load average: 0.00, 0.00, 0.00
+nproc: 4
+
+=== top 스냅샷 (1회) ===
+top - 20:38:32 up 4 min,  0 user,  load average: 0.00, 0.00, 0.00
+Tasks:  12 total,   1 running,  11 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.0 us,  0.0 sy,  0.0 ni,100.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+MiB Mem :   7943.1 total,   6997.4 free,    810.9 used,    280.0 buff/cache     
+MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   7132.2 avail Mem 
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+    1 root      20   0    3172   2260   2132 S   0.0   0.0   0:00.03 init(Ubun+
+    7 root      20   0    3172   2044   1940 S   0.0   0.0   0:00.00 init
+   38 root      20   0    3188   1116    980 S   0.0   0.0   0:00.00 SessionLe+
+   39 root      20   0    3188   1124    980 S   0.0   0.0   0:00.00 Relay(40)
+   40 doheekim  20   0    5016   3652   3132 S   0.0   0.0   0:00.15 bash
+ 2681 doheekim  20   0    3144   2080   1948 S   0.0   0.0   0:00.00 script
+ 2683 doheekim  20   0    4752   3324   3068 S   0.0   0.0   0:00.00 bash
+ 2684 doheekim  20   0    2896   2104   1884 S   0.0   0.0   0:00.08 agent-lea+
+ 2685 doheekim  30  10  504420 351052   9672 S   0.0   4.3   0:00.69 agent-lea+
+ 2962 doheekim  20   0    4884   3520   3132 S   0.0   0.0   0:00.01 bash
+ 3066 doheekim  20   0    9284   5240   3156 R   0.0   0.1   0:00.00 top
+ 3067 doheekim  20   0    3136   1796   1680 S   0.0   0.0   0:00.00 head

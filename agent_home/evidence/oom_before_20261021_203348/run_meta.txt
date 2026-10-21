@@ -1,0 +1,16 @@
+SCENARIO=oom
+PHASE=before
+MEMORY_LIMIT=80
+CPU_MAX_OCCUPY=50
+MULTI_THREAD_ENABLE=false
+START_TIME=2026-10-21 20:33:49
+WORKER_PID=60
+OBSERVE_SEC=40
+SURVIVAL_SEC=12
+OUTCOME=EXITED
+EXIT_CODE=137
+BANNER=>>> [SYSTEM] SELF-TERMINATED (Memory Limit Exceeded) <<<
+MAX_RSS_MB=92.6
+LAST_LOG=2026-10-21 20:34:00,876 [CRITICAL] [MemoryGuard] Self-terminating process 60 to prevent system instability.
+RUN_LOG=/home/doheekim/agent_home/logs/run_oom_before_20261021_203348.log
+MONITOR_CSV=/home/doheekim/agent_home/logs/monitor_oom_before_20261021_203348.csv

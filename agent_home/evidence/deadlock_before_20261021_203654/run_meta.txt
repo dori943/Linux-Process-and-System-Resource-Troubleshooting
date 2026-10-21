@@ -1,0 +1,16 @@
+SCENARIO=deadlock
+PHASE=before
+MEMORY_LIMIT=512
+CPU_MAX_OCCUPY=50
+MULTI_THREAD_ENABLE=true
+START_TIME=2026-10-21 20:36:55
+WORKER_PID=2172
+OBSERVE_SEC=35
+SURVIVAL_SEC=35+ (관찰 종료 시점까지 생존)
+OUTCOME=ALIVE_KILLED
+EXIT_CODE=
+BANNER=
+MAX_RSS_MB=17.5
+LAST_LOG=2026-10-21 20:37:04,645 [INFO] [AgentWorker][Worker-Thread-2] WAITING for [Shared_Memory_A]... (Status: BLOCKED)
+RUN_LOG=/home/doheekim/agent_home/logs/run_deadlock_before_20261021_203654.log
+MONITOR_CSV=/home/doheekim/agent_home/logs/monitor_deadlock_before_20261021_203654.csv

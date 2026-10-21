@@ -1,0 +1,24 @@
+=== Deadlock 진단 체크리스트 (PID 2685) ===
+
+1) PID 존재 여부 (ps -p):
+ 2685 SNl+       00:42    3 /home/doheekim/agent_home/agent-leak-app
+
+2) 스레드 상태 (S=Sleep 이고 wchan 이 futex 면 락 대기):
+  LWP STAT WCHAN                          COMMAND
+ 2685 SNl+ futex_wait_queue               agent-leak-app
+ 2732 SNl+ do_select                      agent-leak-app
+ 2733 SNl+ do_select                      agent-leak-app
+
+3) 순간 CPU 5회 (0에 가까우면 busy-wait 가 아닌 진짜 대기):
+   [20:38:32] CPU_now=2.0%  RSS=376656KB
+   [20:38:33] CPU_now=4.0%  RSS=376656KB
+   [20:38:34] CPU_now=3.0%  RSS=402260KB
+   [20:38:35] CPU_now=3.0%  RSS=402260KB
+   [20:38:37] CPU_now=0.0%  RSS=402260KB
+
+4) 마지막 로그 (타임스탬프가 더 이상 안 바뀜):
+2026-10-21 20:38:30,757 [INFO] [CpuWorker] Current Load: 48.48%
+2026-10-21 20:38:32,822 [INFO] [MemoryWorker] Current Heap: 350MB
+2026-10-21 20:38:33,873 [INFO] [CpuWorker] Current Load: 38.83%
+2026-10-21 20:38:35,865 [INFO] [MemoryWorker] Current Heap: 375MB
+2026-10-21 20:38:36,987 [INFO] [CpuWorker] Current Load: 32.27%

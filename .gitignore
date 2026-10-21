@@ -1,0 +1,9 @@
+# Windows/macOS 가 만드는 부스러기
+*Zone.Identifier
+__MACOSX/
+.DS_Store
+Thumbs.db
+
+# 실행 산출물은 $AGENT_HOME(~/agent_home) 에 생기므로 리포지토리에는 리포트/증거만 선별해서 넣는다
+agent_home/logs/agent.pid
+agent_home/agent-leak-app

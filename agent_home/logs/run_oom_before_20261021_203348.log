@@ -1,0 +1,44 @@
+Script started on 2026-10-21 20:33:49+09:00 [COMMAND="'/home/doheekim/agent_home/agent-leak-app'; echo "EXIT_CODE=$?"" <not executed on terminal>]
+>>> Starting Agent Boot Sequence...
+[1/6] Checking User Account               [OK]
+   ... Running as service user 'doheekim' (uid=1000)
+[2/6] Verifying Environment Variables     [OK]
+   ... All required Envs correct
+[3/6] Checking Required Files             [OK]
+   ... Verified 'secret.key' with correct key string.
+[4/6] Checking Port Availability          [OK]
+   ... Port 15034 is available.
+[5/6] Verifying Log Permission            [OK]
+   ... Log directory is writable: /home/doheekim/agent_home/logs
+[6/6] Verifying Mission Environment       [OK]
+   ... MEMORY_LIMIT=80MB, CPU_MAX_OCCUPY=50%, MULTI_THREAD_ENABLE=False
+------------------------------------------------------------
+All Boot Checks Passed!
+Agent READY
+2026-10-21 20:33:49,733 [INFO] [SafetyGuard] Process priority lowered (nice=10).
+2026-10-21 20:33:49,733 [INFO] Agent listening at port 15034
+
+==================================================
+ [ Agent Initiate ] Resource Check 
+==================================================
+ [ MEMORY ] Limit: 80MB 		[ WARNING: Recommend Over 256MB ]
+ [ CPU    ] Limit: 50%  		[ OK ]
+ [ THREAD ] Concurrency: False 		[ OK ]
+--------------------------------------------------
+ >>> SYSTEM STATUS: STABLE. STARTING WORKLOAD MONITORING...
+==================================================
+
+2026-10-21 20:33:51,763 [INFO] [MemoryWorker] Current Heap: 25MB
+2026-10-21 20:33:54,800 [INFO] [MemoryWorker] Current Heap: 50MB
+2026-10-21 20:33:57,835 [INFO] [MemoryWorker] Current Heap: 75MB
+2026-10-21 20:34:00,876 [INFO] [MemoryWorker] Current Heap: 100MB
+2026-10-21 20:34:00,876 [CRITICAL] [MemoryGuard] Memory limit exceeded (100MB >= 80MB) / (Recommend Over 256MB)
+2026-10-21 20:34:00,876 [CRITICAL] [MemoryGuard] Self-terminating process 60 to prevent system instability.
+
+
+>>> [SYSTEM] SELF-TERMINATED (Memory Limit Exceeded) <<<
+
+bash: line 1:    59 Killed                  '/home/doheekim/agent_home/agent-leak-app'
+EXIT_CODE=137
+
+Script done on 2026-10-21 20:34:00+09:00 [COMMAND_EXIT_CODE="0"]

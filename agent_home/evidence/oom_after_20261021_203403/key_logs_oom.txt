@@ -1,0 +1,29 @@
+=== oom 관련 핵심 로그 ===
+2026-10-21 20:34:07,638 [INFO] [MemoryWorker] Current Heap: 25MB
+2026-10-21 20:34:10,666 [INFO] [MemoryWorker] Current Heap: 50MB
+2026-10-21 20:34:13,703 [INFO] [MemoryWorker] Current Heap: 75MB
+2026-10-21 20:34:16,739 [INFO] [MemoryWorker] Current Heap: 100MB
+2026-10-21 20:34:19,774 [INFO] [MemoryWorker] Current Heap: 125MB
+2026-10-21 20:34:22,809 [INFO] [MemoryWorker] Current Heap: 150MB
+2026-10-21 20:34:25,850 [INFO] [MemoryWorker] Current Heap: 175MB
+2026-10-21 20:34:28,888 [INFO] [MemoryWorker] Current Heap: 200MB
+2026-10-21 20:34:31,923 [INFO] [MemoryWorker] Current Heap: 225MB
+2026-10-21 20:34:34,958 [INFO] [MemoryWorker] Current Heap: 250MB
+2026-10-21 20:34:37,992 [INFO] [MemoryWorker] Current Heap: 275MB
+2026-10-21 20:34:41,027 [INFO] [MemoryWorker] Current Heap: 300MB
+2026-10-21 20:34:41,027 [WARNING] [MemoryWorker] Memory Usage Reached Limit (300MB). Starting cleanup...
+2026-10-21 20:34:41,035 [INFO] [System] Memory Cache Flushed. Process Stabilized.
+2026-10-21 20:34:46,076 [INFO] [MemoryWorker] Current Heap: 25MB
+2026-10-21 20:34:49,112 [INFO] [MemoryWorker] Current Heap: 50MB
+2026-10-21 20:34:52,153 [INFO] [MemoryWorker] Current Heap: 75MB
+2026-10-21 20:34:55,188 [INFO] [MemoryWorker] Current Heap: 100MB
+2026-10-21 20:34:58,223 [INFO] [MemoryWorker] Current Heap: 125MB
+2026-10-21 20:35:01,263 [INFO] [MemoryWorker] Current Heap: 150MB
+2026-10-21 20:35:04,299 [INFO] [MemoryWorker] Current Heap: 175MB
+
+=== 마지막 5줄 (로그 멈춤 시점 확인용) ===
+2026-10-21 20:35:00,609 [INFO] [CpuWorker] Current Load: 9.84%
+2026-10-21 20:35:01,263 [INFO] [MemoryWorker] Current Heap: 150MB
+2026-10-21 20:35:03,719 [INFO] [CpuWorker] Current Load: 9.33%
+2026-10-21 20:35:04,299 [INFO] [MemoryWorker] Current Heap: 175MB
+2026-10-21 20:35:05,830 [INFO] [CpuWorker] Cooldown complete (5.00%). Resuming load increase...

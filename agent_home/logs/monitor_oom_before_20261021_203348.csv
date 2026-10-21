@@ -1,0 +1,5 @@
+timestamp,pid,cpu_now,cpu_avg,rss_mb,vsz_mb,threads,stat,status,note
+2026-10-21 20:33:52,60,0.0,2.3,42.6,47.5,1,SN+,RUNNING,
+2026-10-21 20:33:55,60,0.0,1.3,67.6,72.5,1,SN+,RUNNING,
+2026-10-21 20:33:58,60,0.0,1.1,92.6,97.6,1,SN+,RUNNING,
+2026-10-21 20:34:01,,0,0,0,0,0,-,EXITED,

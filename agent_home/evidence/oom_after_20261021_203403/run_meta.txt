@@ -1,0 +1,16 @@
+SCENARIO=oom
+PHASE=after
+MEMORY_LIMIT=300
+CPU_MAX_OCCUPY=50
+MULTI_THREAD_ENABLE=false
+START_TIME=2026-10-21 20:34:04
+WORKER_PID=248
+OBSERVE_SEC=50
+SURVIVAL_SEC=50+ (관찰 종료 시점까지 생존)
+OUTCOME=ALIVE_KILLED
+EXIT_CODE=
+BANNER=>>> [SYSTEM] MEMORY RECOVERED (Cache Cleared) <<<
+MAX_RSS_MB=292.9
+LAST_LOG=2026-10-21 20:35:05,830 [INFO] [CpuWorker] Cooldown complete (5.00%). Resuming load increase...
+RUN_LOG=/home/doheekim/agent_home/logs/run_oom_after_20261021_203403.log
+MONITOR_CSV=/home/doheekim/agent_home/logs/monitor_oom_after_20261021_203403.csv

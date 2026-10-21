@@ -1,0 +1,24 @@
+=== Deadlock 진단 체크리스트 (PID 2172) ===
+
+1) PID 존재 여부 (ps -p):
+ 2172 SNl+       00:45    3 /home/doheekim/agent_home/agent-leak-app
+
+2) 스레드 상태 (S=Sleep 이고 wchan 이 futex 면 락 대기):
+  LWP STAT WCHAN                          COMMAND
+ 2172 SNl+ futex_wait_queue               agent-leak-app
+ 2247 SNl+ futex_wait_queue               agent-leak-app
+ 2248 SNl+ futex_wait_queue               agent-leak-app
+
+3) 순간 CPU 5회 (0에 가까우면 busy-wait 가 아닌 진짜 대기):
+   [20:37:40] CPU_now=0.0%  RSS=18016KB
+   [20:37:42] CPU_now=0.0%  RSS=18016KB
+   [20:37:43] CPU_now=0.0%  RSS=18016KB
+   [20:37:44] CPU_now=0.0%  RSS=18016KB
+   [20:37:45] CPU_now=0.0%  RSS=18016KB
+
+4) 마지막 로그 (타임스탬프가 더 이상 안 바뀜):
+2026-10-21 20:37:02,626 [INFO] [AgentWorker][Worker-Thread-2] Establishing network connections in Pool B...
+2026-10-21 20:37:04,645 [INFO] [AgentWorker][Worker-Thread-1] Need resource [Socket_Pool_B] to finish job.
+2026-10-21 20:37:04,645 [INFO] [AgentWorker][Worker-Thread-2] Need resource [Shared_Memory_A] to write logs.
+2026-10-21 20:37:04,645 [INFO] [AgentWorker][Worker-Thread-1] WAITING for [Socket_Pool_B]... (Status: BLOCKED)
+2026-10-21 20:37:04,645 [INFO] [AgentWorker][Worker-Thread-2] WAITING for [Shared_Memory_A]... (Status: BLOCKED)

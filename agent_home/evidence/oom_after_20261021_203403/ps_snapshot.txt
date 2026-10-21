@@ -1,0 +1,19 @@
+=== ps -ef | grep agent-leak-app (Wed Oct 21 20:34:55 KST 2026) ===
+doheekim   244    40  0 20:34 pts/0    00:00:00 script -q -f -c '/home/doheekim/agent_home/agent-leak-app'; echo "EXIT_CODE=$?" /home/doheekim/agent_home/logs/run_oom_after_20261021_203403.log
+doheekim   246   244  0 20:34 pts/1    00:00:00 bash -c '/home/doheekim/agent_home/agent-leak-app'; echo "EXIT_CODE=$?"
+doheekim   247   246  0 20:34 pts/1    00:00:00 /home/doheekim/agent_home/agent-leak-app
+doheekim   248   247  1 20:34 pts/1    00:00:00 /home/doheekim/agent_home/agent-leak-app
+
+=== pstree -p (런처 → 워커 구조) ===
+agent-leak-app(247)---agent-leak-app(248)-+-{agent-leak-app}(295)
+                                          `-{agent-leak-app}(296)
+
+=== ps aux --sort=-%cpu | head -8 (시스템 전체 상위) ===
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+doheekim   248  1.6  1.4 237104 120644 pts/1   SNl+ 20:34   0:00 /home/doheekim/agent_home/agent-leak-app
+doheekim   247  0.1  0.0   2896  2100 pts/1    S+   20:34   0:00 /home/doheekim/agent_home/agent-leak-app
+doheekim    40  0.0  0.0   5016  3648 pts/0    Ss+  20:33   0:00 /bin/bash run_all_scenarios.sh all
+root         1  0.0  0.0   3172  2260 hvc0     Sl+  20:33   0:00 /init
+root         7  0.0  0.0   3172  2044 hvc0     Sl+  20:33   0:00 plan9 --control-socket 6 --log-level 4 --server-fd 7 --pipe-fd 9 --log-truncate
+root        38  0.0  0.0   3188  1116 ?        Ss   20:33   0:00 /init
+root        39  0.0  0.0   3188  1124 ?        S    20:33   0:00 /init

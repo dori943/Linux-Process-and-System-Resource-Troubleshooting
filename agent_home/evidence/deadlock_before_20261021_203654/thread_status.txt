@@ -1,0 +1,16 @@
+=== 스레드 목록 (ps -L -p 2172) ===
+  PID   LWP %CPU %MEM STAT WCHAN                     COMMAND
+ 2172  2172  0.0  0.2 SNl+ futex_wait_queue          agent-leak-app
+ 2172  2247  0.0  0.2 SNl+ futex_wait_queue          agent-leak-app
+ 2172  2248  0.0  0.2 SNl+ futex_wait_queue          agent-leak-app
+
+=== 스레드별 CPU (top -H -b -n 1 -p 2172) ===
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+ 2172 doheekim  30  10  170544  18016   9644 S   0.0   0.2   0:00.03 agent-lea+
+ 2247 doheekim  30  10  170544  18016   9644 S   0.0   0.2   0:00.00 agent-lea+
+ 2248 doheekim  30  10  170544  18016   9644 S   0.0   0.2   0:00.00 agent-lea+
+
+=== /proc/2172/task/*/wchan (스레드별 커널 대기 함수) ===
+  TID 2172 : wchan=futex_wait_queue  state=S (sleeping)
+  TID 2247 : wchan=futex_wait_queue  state=S (sleeping)
+  TID 2248 : wchan=futex_wait_queue  state=S (sleeping)
